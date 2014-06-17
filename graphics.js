@@ -12,14 +12,6 @@ function run() {
 	gl.enableVertexAttribArray(vertexPositionAttribute);
 
 	buffer = initBuffers();
-
-	if (gl) {
-		gl.clearColor(0.0, 0.0, 0.0, 1.0);
-		gl.clearDepth(1.0);
-		gl.enable(gl.DEPTH_TEST);
-		gl.depthFunc(gl.LEQUAL);
-		gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	}
 	setInterval(render, 15);
 }
 
@@ -48,20 +40,4 @@ function initBuffers() {
 
 	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(vertices), gl.STATIC_DRAW);
 	return squareVerticesBuffer;
-}
-
-function initWebGL(canvas) {
-	gl = null;
-
-	try {
-		gl = canvas.getContext("webgl") || canvas.getContext("experimental-webgl");
-	} catch(e) {
-	}
-
-	if (!gl) {
-		alert("Unable to initialize WebGL. Your browser may not support it.");
-		gl = null;
-	}
-
-	return gl;
 }

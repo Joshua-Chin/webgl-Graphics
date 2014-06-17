@@ -14,15 +14,7 @@
 	gl.useProgram(shaderProgram);		return shaderProgram;
 }
 function getShader(gl, url, type) {
-	var source;
-
-	source = getSource(url);
-
-	if (!source) {
-		return null;
-	}
-
-	return compileShader(gl, source, type);
+	return compileShader(gl, getSource(url), type);
 }
 function compileShader(gl, src, type) {
 	var shader;
