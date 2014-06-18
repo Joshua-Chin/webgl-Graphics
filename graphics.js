@@ -1,6 +1,7 @@
 "use strict";
 
 var gl, shaderProgram, buffer, vertexPositionAttribute;
+var cameraAttr, modelAttr;
 
 function run() {
 	var canvas = document.getElementById("glcanvas");
@@ -11,6 +12,9 @@ function run() {
 	var vertexPositionAttribute = gl.getAttribLocation(shaderProgram, "vPosition");
 	gl.enableVertexAttribArray(vertexPositionAttribute);
 
+	cameraAttr = gl.getUniformLocation(shaderProgram, "u_cameraMatrix");
+	modelAttr = gl.getUniformLocation(shaderProgram, "u_modelMatrix");
+	
 	buffer = initBuffers();
 	setInterval(render, 15);
 }
@@ -18,16 +22,13 @@ function run() {
 function render() {
 	var pos = vertexPositionAttribute;
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
-	var perspective = matrix.perspective(Math.PI / 4, 640.0 / 480.0, 0.1, 100);
 
 	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
 	gl.vertexAttribPointer(pos, 3, gl.FLOAT, 3, 0, 0);
 
-	var pUniform = gl.getUniformLocation(shaderProgram, "uPMatrix");
-	gl.uniformMatrix4fv(pUniform, false, new Float32Array(perspective.flatten()));
+	setCamera(gl, cameraAttr, Math.PI / 4, 640.0 / 480.0, 0.1, 100);
 
-	var mvUniform = gl.getUniformLocation(shaderProgram, "uMVMatrix");
-	gl.uniformMatrix4fv(mvUniform, false, new Float32Array(matrix.translate(0.0, 0.0, -6.0).flatten()));
+	gl.uniformMatrix4fv(modelAttr, false, new Float32Array(matrix.translate(0.0, 0.0, -6.0).flatten()));
 	gl.drawArrays(gl.TRIANGLE_STRIP, 0, 4);
 
 }
