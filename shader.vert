@@ -1,4 +1,5 @@
 attribute vec3 vPosition;
+attribute vec3 vNormal;
 
 uniform mat4 u_modelMatrix;
 uniform mat4 u_cameraMatrix;

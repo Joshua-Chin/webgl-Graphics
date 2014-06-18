@@ -3,6 +3,8 @@
 var gl, shaderProgram, squareBuffer;
 var vPosAttr, cameraAttr, modelAttr;
 
+var startTime = (new Date()).getTime(), lastUpdate=startTime;
+
 function run() {
 	var canvas = document.getElementById("glcanvas");
 
@@ -15,55 +17,62 @@ function run() {
 	cameraAttr = gl.getUniformLocation(shaderProgram, "u_cameraMatrix");
 	modelAttr = gl.getUniformLocation(shaderProgram, "u_modelMatrix");
 
-	squareBuffer = genObjectBuffer(
-		[1.0, 1.0, 0.0,
-		-1.0, 1.0, 0.0,
-		1.0, -1.0, 0.0,
-		-1.0, 1.0, 0.0,
-		-1.0, -1.0, 0.0,
-		1.0, -1.0, 0.0,]);
+	  var vertices = [
+    // Front face
+    -1.0, -1.0,  1.0,
+     1.0, -1.0,  1.0,
+     1.0,  1.0,  1.0,
+    -1.0,  1.0,  1.0,
+    
+    // Back face
+    -1.0, -1.0, -1.0,
+    -1.0,  1.0, -1.0,
+     1.0,  1.0, -1.0,
+     1.0, -1.0, -1.0,
+    
+    // Top face
+    -1.0,  1.0, -1.0,
+    -1.0,  1.0,  1.0,
+     1.0,  1.0,  1.0,
+     1.0,  1.0, -1.0,
+    
+    // Bottom face
+    -1.0, -1.0, -1.0,
+     1.0, -1.0, -1.0,
+     1.0, -1.0,  1.0,
+    -1.0, -1.0,  1.0,
+    
+    // Right face
+     1.0, -1.0, -1.0,
+     1.0,  1.0, -1.0,
+     1.0,  1.0,  1.0,
+     1.0, -1.0,  1.0,
+    
+    // Left face
+    -1.0, -1.0, -1.0,
+    -1.0, -1.0,  1.0,
+    -1.0,  1.0,  1.0,
+    -1.0,  1.0, -1.0
+  ];
+
+  var indices = [
+    0,  1,  2,      0,  2,  3,    // front
+    4,  5,  6,      4,  6,  7,    // back
+    8,  9,  10,     8,  10, 11,   // top
+    12, 13, 14,     12, 14, 15,   // bottom
+    16, 17, 18,     16, 18, 19,   // right
+    20, 21, 22,     20, 22, 23    // left
+  ];
+
+	squareBuffer = genIndexedObjectBuffer(vertices, indices);
 	setInterval(render, 15);
 }
 
 function render() {
 	gl.clear(gl.COLOR_BUFFER_BIT | gl.DEPTH_BUFFER_BIT);
 	setCamera(gl, cameraAttr, Math.PI / 4, 640.0 / 480.0, 0.1, 100);
-	drawObject(squareBuffer, matrix.translate(0, 0, -6), 6);
-}
-
-function drawObject(obj, modelMatrix) {
-	var vbo = obj.buffer;
-	var length = obj.length;
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-	gl.vertexAttribPointer(vPosAttr, 3, gl.FLOAT, 3, 0, 0);
-	gl.uniformMatrix4fv(modelAttr, false, new Float32Array(modelMatrix.flatten()));
-	gl.drawArrays(gl.TRIANGLES, 0, length);
-}
-
-function genObjectBuffer(triangles) {
-	var buffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(triangles), gl.STATIC_DRAW);
-	return {buffer:buffer, length:triangles.length/3};
-}
-
-function drawPath(path, modelMatrix) {
-	var vbo = path.buffer;
-	var length = path.length;
-	gl.bindBuffer(gl.ARRAY_BUFFER, vbo);
-	gl.vertexAttribPointer(vPosAttr, 3, gl.FLOAT, 3, 0, 0);
-	gl.uniformMatrix4fv(modelAttr, false, new Float32Array(modelMatrix.flatten()));
-	gl.drawArrays(gl.LINE_STRIP, 0, length);
-}
-
-function genPathBuffer(func, granularity) {
-	points = [];
-	for(var i=0; i<granularity; i++){
-		points[i] = func(i/(granularity-1));
-	}
 	
-	var buffer = gl.createBuffer();
-	gl.bindBuffer(gl.ARRAY_BUFFER, buffer);
-	gl.bufferData(gl.ARRAY_BUFFER, new Float32Array(points), gl.STATIC_DRAW);
-	return {buffer:buffer, length:granularity};
+	var now = (new Date()).getTime();
+	
+	drawIndexedObject(squareBuffer, matrix.translate((now-startTime)/10000, 0, -6), 6);
 }
